@@ -133,7 +133,7 @@ end
 function GenerateQuadsPowerups(atlas)
     local x = 0
     local y = 192
-    local width = 15
+    local width = 16
 
     local counter = 1
     local quads = {}

@@ -3,9 +3,9 @@ Powerup = Class {}
 function Powerup:init(x, y, type)
   self.x = x
   self.y = y
-  self.dy = 50
-  self.width = 15
-  self.height = 15
+  self.dy = 0.25
+  self.width = 16
+  self.height = 16
 
   self.type = type and type or 1
 
@@ -14,15 +14,16 @@ function Powerup:init(x, y, type)
   -- self.timer = 0
 end
 
+-- TODO: Imlpement AABB Collision detection
 function Powerup:collides(target)
-  if self.y + self.height >= target.y then
-    return true
+  if self.y + self.height >= target.y and self.x < target.x + target.width
+
   end
 
   return false
 end
 
-function Powerup:upadte(dt)
+function Powerup:update(dt)
   -- self.timer =
 
   if self.inPlay then
