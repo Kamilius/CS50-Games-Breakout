@@ -1,3 +1,5 @@
+if arg[#arg] == "vsc_debug" then require("lldebugger").start() end
+
 --[[
     GD50
     Breakout Remake

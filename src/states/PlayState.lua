@@ -33,8 +33,7 @@ function PlayState:enter(params)
     self.recoverPoints = 5000
 
     -- give ball random starting velocity
-    self.balls[1].dx = math.random(-200, 200)
-    self.balls[1].dy = math.random(-50, -60)
+    self.balls[1]:initVelocity()
 end
 
 function PlayState:update(dt)
@@ -174,9 +173,10 @@ function PlayState:update(dt)
     -- if ball goes below bounds, revert to serve state and decrease health
     local ballToRemove = nil
 
+
     for ballIndex, ball in pairs(self.balls) do
         if ball.y >= VIRTUAL_HEIGHT then
-            if self.balls.length == 1 then
+            if self.balls[2] == nil then
                 self.health = self.health - 1
                 gSounds['hurt']:play()
 
@@ -207,11 +207,21 @@ function PlayState:update(dt)
         table.remove(self.balls, ballToRemove)
     end
 
-    if self.powerup:collides(self.paddle) then
+    if self.powerup.inPlay and self.powerup:collides(self.paddle) then
+        self.powerup.inPlay = false
+
         -- add two more balls
-        if self.powerup.type == 10 then
-            table.insert(self.balls, Ball())
-            table.insert(self.balls, Ball())
+        if self.powerup.type == 9 then
+            local ball1 = Ball()
+            ball1.skin = math.random(7)
+            ball1:initVelocity()
+
+            local ball2 = Ball()
+            ball2.skin = math.random(7)
+            ball2:initVelocity()
+
+            table.insert(self.balls, ball1)
+            table.insert(self.balls, ball2)
         end
     end
 
