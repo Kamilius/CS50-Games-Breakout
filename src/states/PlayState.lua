@@ -24,6 +24,17 @@ local function getNextPowerupTime()
     return math.random(POWERUP_FROM_SECONDS, POWERUP_TO_SECONDS)
 end
 
+local function initPowerup(levelHasLockedBricks, playerHasKey)
+    local shouldIncludeKeyPowerup = levelHasLockedBricks and not playerHasKey
+
+    return Powerup({
+        -- at the moment only powerups 9 and 10 are implemented:
+        -- 9 - two extra balls
+        -- 10 - the key for destroying the locked blocks
+        type = shouldIncludeKeyPowerup and math.random(9, 10) or 9
+    })
+end
+
 --[[
     We initialize what's in our PlayState via a state table that we pass between
     states as we go from playing to serving.
@@ -31,7 +42,7 @@ end
 function PlayState:enter(params)
     self.paddle = params.paddle
     self.bricks = params.bricks
-    self.powerup = Powerup()
+    self.levelHasLockedBricks = LevelMaker.hasLockedBrick(self.bricks)
     self.health = params.health
     self.score = params.score
     self.highScores = params.highScores
@@ -41,11 +52,15 @@ function PlayState:enter(params)
     self.recoverPoints = params.recoverPoints and params.recoverPoints or 5000
     self.growPaddlePoints = params.growPaddlePoints and params.growPaddlePoints or 1000
 
+    -- represents either player has got the key powerup or not
+    self.playerHasKey = false
+
     -- responsible for counting down the time till next powerup
     self.powerupTimer = 0
     -- responsible for storing the next powerup appearance time
     self.nextPowerupTime = getNextPowerupTime()
 
+    self.powerup = initPowerup(self.levelHasLockedBricks, self.playerHasKey)
 
     -- give ball random starting velocity
     self.balls[1]:initVelocity()
@@ -101,11 +116,17 @@ function PlayState:update(dt)
             -- only check collision if we're in play
             if brick.inPlay and ball:collides(brick) then
 
-                -- add to score
-                self.score = self.score + (brick.tier * 200 + brick.color * 25)
+                -- add bonus points to score in case the locked brick is unlocked and hit
+                local scoreForUnlockingTheLockedBrick = 0
 
-                -- trigger the brick's hit function, which removes it from play
-                brick:hit()
+                if brick.isLocked and self.playerHasKey then
+                    scoreForUnlockingTheLockedBrick = 2000
+                end
+
+                self.score = self.score + (brick.tier * 200 + brick.color * 25) + scoreForUnlockingTheLockedBrick
+
+                -- trigger the brick's hit function, which unlocks or removes it from play
+                brick:hit(self.playerHasKey)
 
                 -- if we have enough points, recover a point of health
                 if self.score > self.recoverPoints then
@@ -127,7 +148,6 @@ function PlayState:update(dt)
                     -- set the new grow points "checkpoint" to be
                     -- between current score + 2500-5000 points on top of that
                     self.growPaddlePoints = self.score + math.min(2500, 5000)
-                    print('self.growPaddlePoints: ', self.growPaddlePoints)
                 end
 
                 -- go to our victory screen if there are no more bricks left
@@ -251,13 +271,15 @@ function PlayState:update(dt)
 
                 table.insert(self.balls, ball1)
                 table.insert(self.balls, ball2)
+            elseif self.powerup.type == 10 then
+                self.playerHasKey = true
             end
 
             -- reset powerup after processing it's effect
-            self.powerup = Powerup()
+            self.powerup = initPowerup(self.levelHasLockedBricks, self.playerHasKey)
         -- if powerup is out of bounds - reset powerup
         elseif self.powerup.y > VIRTUAL_HEIGHT then
-            self.powerup = Powerup()
+            self.powerup = initPowerup(self.levelHasLockedBricks, self.playerHasKey)
         end
     else
         self.powerupTimer = self.powerupTimer + dt

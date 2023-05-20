@@ -57,6 +57,12 @@ end
 function GenerateQuadsBricks(atlas)
     return table.slice(GenerateQuads(atlas, 32, 16), 1, 21)
 end
+--[[
+    This function returns only a single quad for the locked brick.
+]]
+function GenerateQuadLockedBrick(atlas)
+    return table.slice(GenerateQuads(atlas, 32, 16), 1, 24)[24]
+end
 
 --[[
     This function is specifically made to piece out the paddles from the
