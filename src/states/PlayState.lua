@@ -16,6 +16,14 @@
 
 PlayState = Class{__includes = BaseState}
 
+local POWERUP_FROM_SECONDS = 5
+local POWERUP_TO_SECONDS = 10
+
+-- the next powerup will appear between FROM_SECONDS and TO_SECONDS time
+local function getNextPowerupTime()
+    return math.random(POWERUP_FROM_SECONDS, POWERUP_TO_SECONDS)
+end
+
 --[[
     We initialize what's in our PlayState via a state table that we pass between
     states as we go from playing to serving.
@@ -31,6 +39,12 @@ function PlayState:enter(params)
     self.level = params.level
 
     self.recoverPoints = 5000
+
+    -- responsible for counting down the time till next powerup
+    self.powerupTimer = 0
+    -- responsible for storing the next powerup appearance time
+    self.nextPowerupTime = getNextPowerupTime()
+
 
     -- give ball random starting velocity
     self.balls[1]:initVelocity()
@@ -207,21 +221,36 @@ function PlayState:update(dt)
         table.remove(self.balls, ballToRemove)
     end
 
-    if self.powerup.inPlay and self.powerup:collides(self.paddle) then
-        self.powerup.inPlay = false
+    if self.powerup.inPlay then
+        if self.powerup:collides(self.paddle) then
+            self.powerup.inPlay = false
 
-        -- add two more balls
-        if self.powerup.type == 9 then
-            local ball1 = Ball()
-            ball1.skin = math.random(7)
-            ball1:initVelocity()
+            -- add two more balls
+            if self.powerup.type == 9 then
+                local ball1 = Ball()
+                ball1.skin = math.random(7)
+                ball1:initVelocity()
 
-            local ball2 = Ball()
-            ball2.skin = math.random(7)
-            ball2:initVelocity()
+                local ball2 = Ball()
+                ball2.skin = math.random(7)
+                ball2:initVelocity()
 
-            table.insert(self.balls, ball1)
-            table.insert(self.balls, ball2)
+                table.insert(self.balls, ball1)
+                table.insert(self.balls, ball2)
+            end
+
+            -- reset powerup after processing it's effect
+            self.powerup = Powerup()
+        end
+    else
+        self.powerupTimer = self.powerupTimer + dt
+        print('powerupTimer: ', self.powerupTimer, dt)
+        print('nextPowerupTime: ', self.nextPowerupTime)
+
+        if self.powerupTimer >= self.nextPowerupTime then
+            self.powerup.inPlay = true
+            self.powerupTimer = 0
+            self.nextPowerupTime = getNextPowerupTime()
         end
     end
 

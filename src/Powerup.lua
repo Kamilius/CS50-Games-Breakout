@@ -1,23 +1,25 @@
 Powerup = Class {}
 
-function Powerup:init(x, y, type)
-  self.x = x
-  self.y = y
+function Powerup:init(params)
+  -- initialize params with an empty object by default
+  params = params or {}
+  -- 8 is a viewport padding
+  -- 15 - is a width of a Powerup
+  self.x = params.x and params.x or math.random(8, VIRTUAL_WIDTH - 8 - 15)
+  self.y = params.y and params.y or VIRTUAL_HEIGHT / 4
   self.dy = 0.25
   self.width = 16
   self.height = 16
 
-  self.type = type and type or 1
+  self.type = params.type and params.type or 9
 
-  self.inPlay = true
-
-  -- self.timer = 0
+  self.inPlay = false
 end
 
 -- TODO: Imlpement AABB Collision detection
 function Powerup:collides(target)
   if self.y + self.height >= target.y then
-      if self.x >= target.x or self.x <= target.x + target.width then
+    if self.x >= target.x or self.x <= target.x + target.width then
       return true
     end
   end
@@ -26,8 +28,6 @@ function Powerup:collides(target)
 end
 
 function Powerup:update(dt)
-  -- self.timer =
-
   if self.inPlay then
     self.y = self.y + self.dy
   end

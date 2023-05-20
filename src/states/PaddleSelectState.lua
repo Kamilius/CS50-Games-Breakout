@@ -48,14 +48,7 @@ function PaddleSelectState:update(dt)
         gStateMachine:change('serve', {
             paddle = Paddle(self.currentPaddle),
             bricks = LevelMaker.createMap(32),
-            powerup = Powerup(
-                -- 8 is a viewport padding
-                -- 15 - is a width of a Powerup
-                math.random(8, VIRTUAL_WIDTH - 8 - 15),
-                VIRTUAL_HEIGHT / 4,
-                -- for double ball powerup
-                9
-            ),
+            powerup = Powerup(),
             health = 3,
             score = 0,
             highScores = self.highScores,
