@@ -27,7 +27,7 @@ function ServeState:enter(params)
     self.recoverPoints = params.recoverPoints
 
     -- init new ball (random color for fun)
-    self.balls = {Ball()}
+    self.balls = params.balls
     self.balls[1].skin = math.random(7)
 end
 

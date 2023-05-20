@@ -128,8 +128,6 @@ function PlayState:update(dt)
                         health = self.health,
                         score = self.score,
                         highScores = self.highScores,
-                        balls = {Ball()},
-                        powerup = Powerup(),
                         recoverPoints = self.recoverPoints
                     })
                 end
@@ -206,6 +204,7 @@ function PlayState:update(dt)
                         bricks = self.bricks,
                         health = self.health,
                         score = self.score,
+                        balls = {Ball()},
                         highScores = self.highScores,
                         level = self.level,
                         recoverPoints = self.recoverPoints
@@ -229,11 +228,9 @@ function PlayState:update(dt)
             -- add two more balls
             if self.powerup.type == 9 then
                 local ball1 = Ball()
-                ball1.skin = math.random(7)
                 ball1:initVelocity()
 
                 local ball2 = Ball()
-                ball2.skin = math.random(7)
                 ball2:initVelocity()
 
                 table.insert(self.balls, ball1)
