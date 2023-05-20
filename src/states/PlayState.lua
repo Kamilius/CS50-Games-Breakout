@@ -31,7 +31,7 @@ end
 function PlayState:enter(params)
     self.paddle = params.paddle
     self.bricks = params.bricks
-    self.powerup = params.powerup
+    self.powerup = Powerup()
     self.health = params.health
     self.score = params.score
     self.highScores = params.highScores
@@ -128,7 +128,8 @@ function PlayState:update(dt)
                         health = self.health,
                         score = self.score,
                         highScores = self.highScores,
-                        balls = self.balls,
+                        balls = {Ball()},
+                        powerup = Powerup(),
                         recoverPoints = self.recoverPoints
                     })
                 end
@@ -202,7 +203,6 @@ function PlayState:update(dt)
                 else
                     gStateMachine:change('serve', {
                         paddle = self.paddle,
-                        powerup = self.powerup,
                         bricks = self.bricks,
                         health = self.health,
                         score = self.score,
@@ -222,6 +222,7 @@ function PlayState:update(dt)
     end
 
     if self.powerup.inPlay then
+        -- if powerup collides with our paddle - apply powerup effect by type
         if self.powerup:collides(self.paddle) then
             self.powerup.inPlay = false
 
@@ -240,6 +241,9 @@ function PlayState:update(dt)
             end
 
             -- reset powerup after processing it's effect
+            self.powerup = Powerup()
+        -- if powerup is out of bounds - reset powerup
+        elseif self.powerup.y > VIRTUAL_HEIGHT then
             self.powerup = Powerup()
         end
     else

@@ -20,7 +20,6 @@ function VictoryState:enter(params)
     self.paddle = params.paddle
     self.health = params.health
     self.balls = params.balls
-    self.powerup = params.powerup
     self.recoverPoints = params.recoverPoints
 end
 
@@ -36,7 +35,6 @@ function VictoryState:update(dt)
         gStateMachine:change('serve', {
             level = self.level + 1,
             bricks = LevelMaker.createMap(self.level + 1),
-            powerup = self.powerup,
             paddle = self.paddle,
             health = self.health,
             score = self.score,
@@ -48,7 +46,10 @@ end
 
 function VictoryState:render()
     self.paddle:render()
-    self.ball:render()
+
+    for _, ball in pairs(self.balls) do
+        ball:render()
+    end
 
     renderHealth(self.health)
     renderScore(self.score)

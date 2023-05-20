@@ -16,10 +16,9 @@ function Powerup:init(params)
   self.inPlay = false
 end
 
--- TODO: Imlpement AABB Collision detection
 function Powerup:collides(target)
   if self.y + self.height >= target.y then
-    if self.x >= target.x or self.x <= target.x + target.width then
+    if self.x >= target.x and self.x <= target.x + target.width then
       return true
     end
   end
