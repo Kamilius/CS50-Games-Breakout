@@ -38,7 +38,8 @@ function PlayState:enter(params)
     self.balls = params.balls
     self.level = params.level
 
-    self.recoverPoints = 5000
+    self.recoverPoints = params.recoverPoints and params.recoverPoints or 5000
+    self.growPaddlePoints = params.growPaddlePoints and params.growPaddlePoints or 1000
 
     -- responsible for counting down the time till next powerup
     self.powerupTimer = 0
@@ -118,6 +119,17 @@ function PlayState:update(dt)
                     gSounds['recover']:play()
                 end
 
+                -- if you have enough points to grow the paddle
+                if self.score > self.growPaddlePoints then
+                    -- grow the paddle
+                    self.paddle:grow()
+
+                    -- set the new grow points "checkpoint" to be
+                    -- between current score + 2500-5000 points on top of that
+                    self.growPaddlePoints = self.score + math.min(2500, 5000)
+                    print('self.growPaddlePoints: ', self.growPaddlePoints)
+                end
+
                 -- go to our victory screen if there are no more bricks left
                 if self:checkVictory() then
                     gSounds['victory']:play()
@@ -188,9 +200,12 @@ function PlayState:update(dt)
 
 
     for ballIndex, ball in pairs(self.balls) do
+        -- if on of the balls reached the bottom boundary
         if ball.y >= VIRTUAL_HEIGHT then
+            -- if there is only one ball left
             if self.balls[2] == nil then
                 self.health = self.health - 1
+                self.paddle:shrink()
                 gSounds['hurt']:play()
 
                 if self.health == 0 then
@@ -207,7 +222,8 @@ function PlayState:update(dt)
                         balls = {Ball()},
                         highScores = self.highScores,
                         level = self.level,
-                        recoverPoints = self.recoverPoints
+                        recoverPoints = self.recoverPoints,
+                        growPaddlePoints = self.growPaddlePoints
                     })
                 end
             else
@@ -245,8 +261,6 @@ function PlayState:update(dt)
         end
     else
         self.powerupTimer = self.powerupTimer + dt
-        print('powerupTimer: ', self.powerupTimer, dt)
-        print('nextPowerupTime: ', self.nextPowerupTime)
 
         if self.powerupTimer >= self.nextPowerupTime then
             self.powerup.inPlay = true
